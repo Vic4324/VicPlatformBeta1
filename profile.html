@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile - Vic Platform</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .profile-card {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #1f1f1f;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        .profile-avatar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #00ff88;
+            margin-bottom: 15px;
+        }
+
+        .profile-name {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .stat-title {
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .level-badge {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 5px 12px;
+            background: #00ff88;
+            color: black;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <h2>Vic Platform</h2>
+
+    <button onclick="location.href='index.html'">🏠 Home</button>
+    <button onclick="location.href='games.html'">🎮 Games</button>
+    <button onclick="location.href='profile.html'">👤 Profile</button>
+    <button onclick="location.href='chat.html'">💬 Chat</button>
+    <button onclick="location.href='login.html'">🔑 Login</button>
+    <button onclick="location.href='friends.html'">👥 Friends</button>
+    <button onclick="location.href='notifications.html'">🔔 Notifications</button>
+    <button onclick="location.href='settings.html'">⚙️ Settings</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <h1>👤 Profile</h1>
+
+    <div class="profile-card">
+
+        <img id="profileAvatar" class="profile-avatar">
+
+        <div id="profileName" class="profile-name">Loading...</div>
+
+        <div id="profileLevel" class="level-badge">Level 1</div>
+
+        <div class="profile-stats">
+
+            <div class="stat-box">
+                <div class="stat-title">Coins</div>
+                <div class="stat-value" id="profileCoins">0</div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-title">Total Likes</div>
+                <div class="stat-value" id="profileLikes">0</div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-title">Games Played</div>
+                <div class="stat-value" id="profileGames">0</div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+<script>
+window.addEventListener("DOMContentLoaded", function () {
+
+    let user = getCurrentUser();
+
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    document.getElementById("profileAvatar").src =
+        user.avatar || "https://placehold.co/140x140";
+
+    document.getElementById("profileName").innerText =
+        user.username;
+
+    let coins = user.coins || 0;
+    document.getElementById("profileCoins").innerText = coins;
+
+    let level = Math.floor(coins / 100) + 1;
+    document.getElementById("profileLevel").innerText =
+        "Level " + level;
+
+    let totalLikes = 0;
+    for (let k in (user.likes || {})) {
+        totalLikes += user.likes[k];
+    }
+
+    document.getElementById("profileLikes").innerText = totalLikes;
+
+    let totalGames = 0;
+    for (let k in (user.gamesPlayed || {})) {
+        totalGames += user.gamesPlayed[k];
+    }
+
+    document.getElementById("profileGames").innerText = totalGames;
+});
+</script>
+
+</body>
+</html>

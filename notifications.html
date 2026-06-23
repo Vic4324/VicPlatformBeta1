@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notifications - Vic Platform</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .notify-box{
+            background:#1f1f1f;
+            padding:20px;
+            border-radius:15px;
+            margin-bottom:20px;
+        }
+
+        .notification{
+            background:#111;
+            padding:15px;
+            border-radius:10px;
+            margin-bottom:15px;
+        }
+
+        .accept{
+            background:#00c853;
+            color:white;
+        }
+
+        .reject{
+            background:red;
+            color:white;
+        }
+
+        button{
+            padding:8px 14px;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+            margin-right:10px;
+        }
+
+        .time{
+            color:gray;
+            font-size:13px;
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>Vic Platform</h2>
+
+    <button onclick="location.href='index.html'">🏠 Home</button>
+    <button onclick="location.href='games.html'">🎮 Games</button>
+    <button onclick="location.href='profile.html'">👤 Profile</button>
+    <button onclick="location.href='chat.html'">💬 Chat</button>
+    <button onclick="location.href='login.html'">🔑 Login</button>
+    <button onclick="location.href='friends.html'">👥 Friends</button>
+    <button onclick="location.href='notifications.html'">🔔 Notifications</button>
+    <button onclick="location.href='settings.html'">⚙️ Settings</button>
+</div>
+
+<div class="main">
+
+<h1>🔔 Notifications</h1>
+
+<div class="notify-box">
+
+    <div id="notificationList"></div>
+
+</div>
+
+</div>
+
+<script src="script.js"></script>
+
+<script>
+
+let user = getCurrentUser();
+
+if(!user){
+    location.href = "login.html";
+}
+
+function loadNotifications(){
+
+    user = getUsers().find(u=>u.id===getCurrentUserId());
+
+    let box = document.getElementById("notificationList");
+
+    box.innerHTML = "";
+
+    // welcome
+    box.innerHTML += `
+        <div class="notification">
+            <h3>🎉 Welcome to Vic Platform!</h3>
+            <div class="time">Enjoy your experience.</div>
+        </div>
+    `;
+
+    // friend requests
+    user.requests = user.requests || [];
+
+    user.requests.forEach(id=>{
+
+        let sender = getUsers().find(x=>x.id===id);
+
+        if(!sender) return;
+
+        box.innerHTML += `
+        <div class="notification">
+
+            <h3>👥 ${sender.username} sent you a friend request</h3>
+
+            <div class="time">just now</div>
+
+            <br>
+
+            <button class="accept"
+            onclick="acceptAndRefresh('${sender.id}')">
+
+            Accept
+
+            </button>
+
+            <button class="reject"
+            onclick="rejectRequest('${sender.id}')">
+
+            Reject
+
+            </button>
+
+        </div>
+        `;
+    });
+
+}
+
+function acceptAndRefresh(id){
+
+    acceptFriend(id);
+
+    loadNotifications();
+
+}
+
+function rejectRequest(id){
+
+    updateCurrentUser(user=>{
+
+        user.requests=user.requests||[];
+
+        user.requests=user.requests.filter(x=>x!==id);
+
+    });
+
+    loadNotifications();
+
+}
+
+loadNotifications();
+
+setInterval(loadNotifications,2000);
+
+</script>
+
+</body>
+</html>

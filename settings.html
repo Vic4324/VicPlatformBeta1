@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Settings - Vic Platform</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <h2>Vic Platform</h2>
+
+    <button onclick="location.href='index.html'">🏠 Home</button>
+    <button onclick="location.href='games.html'">🎮 Games</button>
+    <button onclick="location.href='profile.html'">👤 Profile</button>
+    <button onclick="location.href='chat.html'">💬 Chat</button>
+    <button onclick="location.href='friends.html'">👥 Friends</button>
+    <button onclick="location.href='notifications.html'">🔔 Notifications</button>
+    <button onclick="location.href='settings.html'">⚙️ Settings</button>
+    <button onclick="location.href='login.html'">🔑 Login</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+
+        <input type="text" placeholder="🔍 Search games..." id="searchInput" oninput="searchGames()">
+
+        <div class="userinfo">
+            <img id="topAvatar" class="top-avatar" src="https://placehold.co/40x40">
+
+            <div class="user-text">
+                <div id="topUsername">Vic123</div>
+                <div class="coins">🪙 100 Coins</div>
+            </div>
+        </div>
+
+    </div>
+
+    <h1>⚙️ Settings</h1>
+
+    <!-- SETTINGS CARD -->
+    <div class="game">
+
+        <!-- USERNAME -->
+        <h3>Username</h3>
+        <input
+            class="textbox"
+            id="usernameInput"
+            type="text"
+            placeholder="Enter username">
+
+        <br><br>
+
+        <!-- LANGUAGE -->
+        <h3>Language</h3>
+        <input
+            class="textbox"
+            id="languageInput"
+            type="text"
+            placeholder="English / Vietnamese">
+
+        <br><br>
+
+        <!-- AVATAR -->
+        <h3>Avatar</h3>
+
+        <input
+            type="file"
+            id="avatarInput"
+            accept="image/*">
+
+        <br><br>
+
+        <img
+            id="avatarPreview"
+            width="120"
+            src="https://placehold.co/120x120">
+
+        <br><br>
+
+        <!-- SAVE -->
+        <button class="play-button" onclick="saveSettings()">
+            Save Changes
+        </button>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

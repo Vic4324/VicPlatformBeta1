@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat - Vic Platform</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+
+    <h2>Vic Platform</h2>
+
+    <button onclick="location.href='index.html'">🏠 Home</button>
+    <button onclick="location.href='games.html'">🎮 Games</button>
+    <button onclick="location.href='profile.html'">👤 Profile</button>
+    <button onclick="location.href='chat.html'">💬 Chat</button>
+    <button onclick="location.href='login.html'">🔑 Login</button>
+    <button onclick="location.href='friends.html'">👥 Friends</button>
+    <button onclick="location.href='notifications.html'">🔔 Notifications</button>
+    <button onclick="location.href='settings.html'">⚙️ Settings</button>
+
+</div>
+
+
+<!-- MAIN -->
+<div class="main">
+
+    <h1 id="chatTitle">💬 Global Chat</h1>
+
+    <!-- Tabs -->
+    <div class="chat-tabs">
+
+        <button id="globalBtn" onclick="switchGlobal()">
+            🌍 Global Chat
+        </button>
+
+        <button id="dmBtn" onclick="showDMList()">
+            👥 Direct Messages
+        </button>
+
+    </div>
+
+
+    <div class="chat-container">
+
+        <!-- FRIEND PANEL -->
+        <div class="friend-panel">
+
+            <h3>👥 Friends</h3>
+
+            <div id="friendsList">
+
+                <!-- Example
+
+                <div class="friend-card">
+
+                    <div class="friend-avatar-container">
+
+                        <img src="avatar1.png" class="friend-avatar">
+
+                        <div class="online-dot-small"></div>
+
+                    </div>
+
+                    <div>
+
+                        <div class="friend-name">
+                            Player1
+                        </div>
+
+                        <div class="last-msg">
+                            Online
+                        </div>
+
+                    </div>
+
+                </div>
+
+                -->
+
+            </div>
+
+        </div>
+
+
+        <!-- CHAT PANEL -->
+        <div class="chat-panel">
+
+            <!-- Messages -->
+            <div id="messages" class="messages">
+
+            </div>
+
+
+            <!-- Input -->
+            <div class="chat-input">
+
+                <input
+                    type="text"
+                    id="chatInput"
+                    placeholder="Type a message..."
+                >
+
+                <button onclick="sendMessage()">
+                    Send
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

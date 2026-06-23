@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="main">
+
+    <h1>Login</h1>
+
+    <input id="loginUsername" class="textbox" type="text" placeholder="Username">
+
+    <br><br>
+
+    <input id="loginPassword" class="textbox" type="password" placeholder="Password">
+
+    <br><br>
+
+    <button class="play-button" onclick="login()">
+        Login
+    </button>
+
+    <button class="play-button"
+        onclick="location.href='register.html'">
+        Create Account
+    </button>
+
+</div>
+
+<script src="script.js"></script>
+
+<script>
+function login() {
+
+    let username = document.getElementById("loginUsername").value;
+    let password = document.getElementById("loginPassword").value;
+
+    let users = getUsers();
+
+    let user = users.find(u =>
+        u.username === username &&
+        u.password === password
+    );
+
+    if (!user) {
+        alert("Wrong username or password");
+        return;
+    }
+
+    // SET SESSION TRƯỚC
+    setCurrentUserId(user.id);
+
+    // REDIRECT
+    alert("Login success!");
+
+    window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="main">
+
+    <h1>Create Account</h1>
+
+    <input id="regUsername" class="textbox" type="text" placeholder="Username">
+
+    <br><br>
+
+    <input id="regPassword" class="textbox" type="password" placeholder="Password">
+
+    <br><br>
+
+    <button class="play-button" onclick="register()">
+        Register
+    </button>
+
+    <button class="play-button"
+        onclick="location.href='login.html'">
+        Back to Login
+    </button>
+
+</div>
+
+<script src="script.js"></script>
+
+<script>
+function register() {
+
+    let username = document.getElementById("regUsername").value;
+    let password = document.getElementById("regPassword").value;
+
+    if (!username || !password) {
+        alert("Fill all fields");
+        return;
+    }
+
+    let users = getUsers();
+
+    // check duplicate
+    if (users.find(u => u.username === username)) {
+        alert("Username already exists");
+        return;
+    }
+
+    let newUser = {
+        id: "u_" + Date.now(),
+        username,
+        password,
+
+        avatar: "https://placehold.co/40x40",
+        language: "en",
+        coins: 100,
+
+        likes: {},
+        ratings: {},
+        gamesPlayed: {}
+    };
+
+    users.push(newUser);
+    saveUsers(users);
+
+    // IMPORTANT: auto login after register
+    setCurrentUserId(newUser.id);
+
+    alert("Account created!");
+
+    window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>

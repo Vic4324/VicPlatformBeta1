@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vic Platform</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <h2>Vic Platform</h2>
+
+    <button onclick="location.href='index.html'">🏠 Home</button>
+    <button onclick="location.href='games.html'">🎮 Games</button>
+    <button onclick="location.href='profile.html'">👤 Profile</button>
+    <button onclick="location.href='chat.html'">💬 Chat</button>
+    <button onclick="location.href='login.html'">🔑 Login</button>
+    <button onclick="location.href='friends.html'">👥 Friends</button>
+    <button onclick="location.href='notifications.html'">🔔 Notifications</button>
+    <button onclick="location.href='settings.html'">⚙️ Settings</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+
+        <input type="text"
+            id="searchInput"
+            placeholder="🔍 Search games..."
+            onkeyup="searchGames()">
+
+        <div class="userinfo">
+            <img id="topAvatar" class="top-avatar" src="https://placehold.co/40x40">
+            
+            <div class="user-text">
+                <div id="topUsername">Vic123</div>
+                <div class="coins">🪙 100 Coins</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TITLE -->
+    <h1>🔥 Popular Games</h1>
+
+    <!-- GAMES -->
+    <div class="games">
+
+        <!-- GAME 1 -->
+        <div class="game" id="cubeworld">
+            <img src="https://placehold.co/250x150">
+            <h3>Cube World</h3>
+
+            <p id="like-cubeworld">⭐ 0 Likes</p>
+
+            <button onclick="likeGame('cubeworld')">👍 Like</button>
+            <button onclick="location.href='cubeworld.html'">Play</button>
+        </div>
+
+        <!-- GAME 2 -->
+        <div class="game" id="neonbattlegrounds">
+            <img src="https://placehold.co/250x150">
+            <h3>Neon Battlegrounds</h3>
+
+            <p id="like-neonbattlegrounds">⭐ 0 Likes</p>
+
+            <button onclick="likeGame('neonbattlegrounds')">👍 Like</button>
+            <button onclick="location.href='neonbattlegrounds.html'">Play</button>
+        </div>
+
+        <!-- GAME 3 -->
+        <div class="game" id="elementalsphere">
+            <img src="https://placehold.co/250x150">
+            <h3>Elemental Sphere</h3>
+
+            <p id="like-elementalsphere">⭐ 0 Likes</p>
+
+            <button onclick="likeGame('elementalsphere')">👍 Like</button>
+            <button onclick="location.href='elementalsphere.html'">Play</button>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- SCRIPT -->
+<script src="script.js"></script>
+<script>
+window.addEventListener("DOMContentLoaded", function () {
+    requireLogin();
+});
+</script>
+
+<script>
+let likes = JSON.parse(localStorage.getItem("game_likes")) || {};
+
+// Like system
+function likeGame(gameId) {
+    if (!likes[gameId]) likes[gameId] = 0;
+    likes[gameId]++;
+
+    localStorage.setItem("game_likes", JSON.stringify(likes));
+    updateLikesUI();
+}
+
+// Update UI
+function updateLikesUI() {
+    document.getElementById("like-cubeworld").innerText =
+        "⭐ " + (likes.cubeworld || 0) + " Likes";
+
+    document.getElementById("like-neonbattlegrounds").innerText =
+        "⭐ " + (likes.neonbattlegrounds || 0) + " Likes";
+
+    document.getElementById("like-elementalsphere").innerText =
+        "⭐ " + (likes.elementalsphere || 0) + " Likes";
+}
+
+updateLikesUI();
+
+// Search (basic)
+function searchGames() {
+    let input = document.getElementById("searchInput").value.toLowerCase();
+    let games = document.querySelectorAll(".game");
+
+    games.forEach(game => {
+        let name = game.querySelector("h3").innerText.toLowerCase();
+        game.style.display = name.includes(input) ? "block" : "none";
+    });
+}
+</script>
+
+</body>
+</html>

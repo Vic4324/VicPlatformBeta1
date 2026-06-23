@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Friends - Vic Platform</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+        }
+
+        .box {
+            background: #1f1f1f;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: #00ff88;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #111;
+            margin-top: 10px;
+            border-radius: 8px;
+            align-items: center;
+        }
+
+        .online {
+            color: #00ff88;
+        }
+
+        .offline {
+            color: gray;
+        }
+
+        .danger {
+            background: red;
+            color: white;
+        }
+
+        .small {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <h2>Vic Platform</h2>
+
+    <button onclick="location.href='index.html'">🏠 Home</button>
+    <button onclick="location.href='games.html'">🎮 Games</button>
+    <button onclick="location.href='profile.html'">👤 Profile</button>
+    <button onclick="location.href='chat.html'">💬 Chat</button>
+    <button onclick="location.href='login.html'">🔑 Login</button>
+    <button onclick="location.href='friends.html'">👥 Friends</button>
+        <button onclick="location.href='notifications.html'">🔔 Notifications</button>
+    <button onclick="location.href='settings.html'">⚙️ Settings</button>
+</div>
+
+<div class="main">
+
+<div class="container">
+
+    <h1>👥 Friends System</h1>
+
+    <!-- SEARCH USER -->
+    <div class="box">
+        <h3>🔎 Find User</h3>
+
+        <div class="row">
+            <input id="searchInput" placeholder="Enter username">
+            <button onclick="searchUser()">Search</button>
+        </div>
+
+        <div id="searchResult"></div>
+    </div>
+
+    <!-- FRIEND REQUESTS -->
+    <div class="box">
+        <h3>📩 Friend Requests</h3>
+        <div id="requestList"></div>
+    </div>
+
+    <!-- FRIEND LIST -->
+    <div class="box">
+        <h3>👥 Your Friends</h3>
+        <div id="friendList"></div>
+    </div>
+
+</div>
+
+</div>
+
+<script src="script.js"></script>
+
+<script>
+
+let user = getCurrentUser();
+
+if (!user) {
+    window.location.href = "login.html";
+}
+
+// =====================
+// SEARCH USER
+// =====================
+function searchUser() {
+
+    let name = document.getElementById("searchInput").value;
+
+    let target = findUserByName(name);
+
+    let box = document.getElementById("searchResult");
+
+    if (!target) {
+        box.innerHTML = "<p>❌ User not found</p>";
+        return;
+    }
+
+    box.innerHTML = `
+        <div class="item">
+            <div>
+                <b>${target.username}</b>
+                <div class="small">ID: ${target.id}</div>
+            </div>
+
+            <button onclick="sendFriendRequest('${target.username}')">
+                Add Friend
+            </button>
+        </div>
+    `;
+}
+
+// =====================
+// LOAD FRIEND REQUESTS
+// =====================
+function loadRequests() {
+
+    let box = document.getElementById("requestList");
+    box.innerHTML = "";
+
+    user.requests = user.requests || [];
+
+    if (user.requests.length === 0) {
+        box.innerHTML = "<p>No requests</p>";
+        return;
+    }
+
+    user.requests.forEach(id => {
+
+        let u = getUsers().find(x => x.id === id);
+        if (!u) return;
+
+        box.innerHTML += `
+            <div class="item">
+                <div>${u.username}</div>
+
+                <button onclick="acceptFriend('${u.id}')">
+                    Accept
+                </button>
+            </div>
+        `;
+    });
+}
+
+// =====================
+// LOAD FRIEND LIST
+// =====================
+function loadFriends() {
+
+    let box = document.getElementById("friendList");
+    box.innerHTML = "";
+
+    user.friends = user.friends || [];
+
+    if (user.friends.length === 0) {
+        box.innerHTML = "<p>No friends yet</p>";
+        return;
+    }
+
+    user.friends.forEach(id => {
+
+        let u = getUsers().find(x => x.id === id);
+        if (!u) return;
+
+        let online = Math.random() > 0.5;
+
+        box.innerHTML += `
+            <div class="item">
+                <div>
+                    <b>${u.username}</b>
+                    <div class="${online ? 'online' : 'offline'}">
+                        ${online ? '🟢 Online' : '⚫ Offline'}
+                    </div>
+                </div>
+
+                <div>
+                    <button onclick="location.href='chat.html'">
+DM
+</button>
+                    <button class="danger" onclick="removeFriend('${u.id}')">Remove</button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+// =====================
+// INIT
+// =====================
+function init() {
+    loadRequests();
+    loadFriends();
+}
+
+init();
+
+setInterval(() => {
+
+    user = getUsers().find(u => u.id === getCurrentUserId());
+
+    loadRequests();
+    loadFriends();
+
+}, 2000);
+
+</script>
+
+</body>
+
+</html>
+
