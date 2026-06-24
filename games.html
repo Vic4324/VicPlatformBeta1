@@ -1,80 +1,136 @@
 <!DOCTYPE html>
+
 <html>
 <head>
-    <title>Games</title>
+    <title>Games - Vic Platform</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="sidebar">
-    <h2>Vic Platform</h2>
+<!-- SIDEBAR -->
 
-    <button onclick="location.href='index.html'">🏠 Home</button>
-    <button onclick="location.href='games.html'">🎮 Games</button>
-    <button onclick="location.href='profile.html'">👤 Profile</button>
-    <button onclick="location.href='chat.html'">💬 Chat</button>
-    <button onclick="location.href='login.html'">🔑 Login</button>
-    <button onclick="location.href='friends.html'">👥 Friends</button>
-    <button onclick="location.href='notifications.html'">🔔 Notifications</button>
-    <button onclick="location.href='settings.html'">⚙️ Settings</button>
+<div class="sidebar">
+
+```
+<h2>Vic Platform</h2>
+
+<button onclick="location.href='index.html'">🏠 Home</button>
+<button onclick="location.href='games.html'">🎮 Games</button>
+<button onclick="location.href='profile.html'">👤 Profile</button>
+<button onclick="location.href='chat.html'">💬 Chat</button>
+<button onclick="location.href='login.html'">🔑 Login</button>
+<button onclick="location.href='friends.html'">👥 Friends</button>
+<button onclick="location.href='notifications.html'">🔔 Notifications</button>
+<button onclick="location.href='settings.html'">⚙️ Settings</button>
+```
+
 </div>
+
+<!-- MAIN -->
 
 <div class="main">
-    <div class="topbar">
 
-    <input type="text" placeholder="Search games...">
+```
+<!-- TOPBAR -->
+<div class="topbar">
+
+    <input
+        type="text"
+        id="searchInput"
+        placeholder="🔍 Search games..."
+        onkeyup="searchGames()">
 
     <div class="userinfo">
-        👤 Vic123 &nbsp;&nbsp; 🪙100
-    </div>
 
-</div>
+        <img
+            id="topAvatar"
+            class="top-avatar"
+            src="https://placehold.co/40x40">
 
-    <h1>All Games</h1>
+        <div class="user-text">
 
-    <div class="games">
+            <div id="topUsername">
+                Loading...
+            </div>
 
-        <div class="game">
+            <div class="coins" id="topCoins">
+                🪙 0 Coins
+            </div>
 
-    <img src="https://placehold.co/250x150">
-
-    <h3>Cube World</h3>
-
-    <p>⭐ 95%</p>
-
-    <button onclick="location.href='cubeworld.html'">
-    Play
-</button>
-
-</div>
-
-        <div class="game">
-
-    <img src="https://placehold.co/250x150">
-
-    <h3>Neon Battlegrounds</h3>
-
-    <p>⭐ 95%</p>
-
-    <button>Play</button>
-
-</div>
-
-        <div class="game">
-
-    <img src="https://placehold.co/250x150">
-
-    <h3>Elemental Sphere</h3>
-
-    <p>⭐ 95%</p>
-
-    <button>Play</button>
-
-</div>
+        </div>
 
     </div>
 
 </div>
+
+
+<h1>🎮 All Games</h1>
+
+
+<div class="games">
+
+    <!-- Cube World -->
+    <div class="game">
+
+        <img src="https://placehold.co/250x150">
+
+        <h3>Cube World</h3>
+
+        <p>⭐ 95%</p>
+
+        <button
+            onclick="location.href='cubeworld.html'">
+
+            Play
+
+        </button>
+
+    </div>
+
+
+    <!-- Neon Battlegrounds -->
+    <div class="game">
+
+        <img src="https://placehold.co/250x150">
+
+        <h3>Neon Battlegrounds</h3>
+
+        <p>⭐ 95%</p>
+
+        <button
+            onclick="location.href='neonbattlegrounds.html'">
+
+            Play
+
+        </button>
+
+    </div>
+
+
+    <!-- Elemental Sphere -->
+    <div class="game">
+
+        <img src="https://placehold.co/250x150">
+
+        <h3>Elemental Sphere</h3>
+
+        <p>⭐ 95%</p>
+
+        <button
+            onclick="location.href='elementalsphere.html'">
+
+            Play
+
+        </button>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<script type="module" src="script.js"></script>
 
 </body>
 </html>

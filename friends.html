@@ -48,23 +48,8 @@
             align-items: center;
         }
 
-        .online {
-            color: #00ff88;
-        }
-
-        .offline {
-            color: gray;
-        }
-
-        .danger {
-            background: red;
-            color: white;
-        }
-
-        .small {
-            font-size: 12px;
-            opacity: 0.8;
-        }
+        .online { color: #00ff88; }
+        .offline { color: gray; }
     </style>
 </head>
 
@@ -79,7 +64,7 @@
     <button onclick="location.href='chat.html'">💬 Chat</button>
     <button onclick="location.href='login.html'">🔑 Login</button>
     <button onclick="location.href='friends.html'">👥 Friends</button>
-        <button onclick="location.href='notifications.html'">🔔 Notifications</button>
+    <button onclick="location.href='notifications.html'">🔔 Notifications</button>
     <button onclick="location.href='settings.html'">⚙️ Settings</button>
 </div>
 
@@ -89,7 +74,6 @@
 
     <h1>👥 Friends System</h1>
 
-    <!-- SEARCH USER -->
     <div class="box">
         <h3>🔎 Find User</h3>
 
@@ -101,13 +85,11 @@
         <div id="searchResult"></div>
     </div>
 
-    <!-- FRIEND REQUESTS -->
     <div class="box">
         <h3>📩 Friend Requests</h3>
         <div id="requestList"></div>
     </div>
 
-    <!-- FRIEND LIST -->
     <div class="box">
         <h3>👥 Your Friends</h3>
         <div id="friendList"></div>
@@ -117,142 +99,227 @@
 
 </div>
 
-<script src="script.js"></script>
+<script type="module">
 
-<script>
+import { db } from "./firebase.js";
+import {
+    ref,
+    get,
+    update,
+    onValue
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-let user = getCurrentUser();
+// =====================
+let currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
-if (!user) {
-    window.location.href = "login.html";
-}
+if (!currentUser) location.href = "login.html";
 
 // =====================
 // SEARCH USER
 // =====================
-function searchUser() {
+window.searchUser = async function () {
 
-    let name = document.getElementById("searchInput").value;
-
-    let target = findUserByName(name);
-
+    let username = document.getElementById("searchInput").value.trim();
     let box = document.getElementById("searchResult");
 
-    if (!target) {
+    if (!username) return;
+
+    let snap = await get(ref(db, "users/" + username));
+
+    if (!snap.exists()) {
         box.innerHTML = "<p>❌ User not found</p>";
+        return;
+    }
+
+    let data = snap.val();
+
+    if (data.username === currentUser.username) {
+        box.innerHTML = "<p>This is you.</p>";
         return;
     }
 
     box.innerHTML = `
         <div class="item">
-            <div>
-                <b>${target.username}</b>
-                <div class="small">ID: ${target.id}</div>
-            </div>
-
-            <button onclick="sendFriendRequest('${target.username}')">
+            <b>${data.username}</b>
+            <button onclick="sendFriendRequest('${data.username}')">
                 Add Friend
             </button>
         </div>
     `;
-}
+};
 
 // =====================
-// LOAD FRIEND REQUESTS
+// SEND REQUEST
 // =====================
+window.sendFriendRequest = async function (targetUsername) {
+
+    let targetRef = ref(db, "users/" + targetUsername);
+    let snap = await get(targetRef);
+
+    if (!snap.exists()) return;
+
+    let target = snap.val();
+
+    let requests = target.requests || [];
+
+    if (requests.includes(currentUser.username)) return;
+
+    requests.push(currentUser.username);
+
+    await update(targetRef, {
+        requests: requests
+    });
+
+    alert("Friend request sent!");
+};
+
+// =====================
+// ACCEPT FRIEND
+// =====================
+window.acceptFriend = async function (username) {
+
+    let myRef = ref(db, "users/" + currentUser.username);
+    let targetRef = ref(db, "users/" + username);
+
+    let mySnap = await get(myRef);
+    let targetSnap = await get(targetRef);
+
+    if (!mySnap.exists() || !targetSnap.exists()) return;
+
+    let me = mySnap.val();
+    let target = targetSnap.val();
+
+    let myFriends = me.friends || [];
+    let targetFriends = target.friends || [];
+    let requests = me.requests || [];
+
+    if (!myFriends.includes(username)) myFriends.push(username);
+    if (!targetFriends.includes(currentUser.username)) targetFriends.push(currentUser.username);
+
+    requests = requests.filter(x => x !== username);
+
+    await update(myRef, {
+        friends: myFriends,
+        requests: requests
+    });
+
+    await update(targetRef, {
+        friends: targetFriends
+    });
+};
+
+// =====================
+// LOAD REQUESTS (REALTIME SAFE)
+// =====================
+let requestsListener = null;
+
 function loadRequests() {
 
     let box = document.getElementById("requestList");
-    box.innerHTML = "";
+    if (!box) return;
 
-    user.requests = user.requests || [];
+    let userRef = ref(db, "users/" + currentUser.username);
 
-    if (user.requests.length === 0) {
-        box.innerHTML = "<p>No requests</p>";
-        return;
-    }
+    if (requestsListener) requestsListener();
 
-    user.requests.forEach(id => {
+    requestsListener = onValue(userRef, (snap) => {
 
-        let u = getUsers().find(x => x.id === id);
-        if (!u) return;
+        if (!snap.exists()) return;
 
-        box.innerHTML += `
-            <div class="item">
-                <div>${u.username}</div>
+        let data = snap.val();
+        let requests = data.requests || [];
 
-                <button onclick="acceptFriend('${u.id}')">
-                    Accept
-                </button>
-            </div>
-        `;
+        box.innerHTML = "";
+
+        if (requests.length === 0) {
+            box.innerHTML = "<p>No requests</p>";
+            return;
+        }
+
+        requests.forEach(u => {
+            box.innerHTML += `
+                <div class="item">
+                    <div>${u}</div>
+                    <button onclick="acceptFriend('${u}')">Accept</button>
+                </div>
+            `;
+        });
     });
 }
 
 // =====================
-// LOAD FRIEND LIST
+// LOAD FRIENDS (REALTIME SAFE)
 // =====================
+let friendsListener = null;
+
 function loadFriends() {
 
     let box = document.getElementById("friendList");
-    box.innerHTML = "";
+    if (!box) return;
 
-    user.friends = user.friends || [];
+    let userRef = ref(db, "users/" + currentUser.username);
 
-    if (user.friends.length === 0) {
-        box.innerHTML = "<p>No friends yet</p>";
-        return;
-    }
+    if (friendsListener) friendsListener();
 
-    user.friends.forEach(id => {
+    friendsListener = onValue(userRef, async (snap) => {
 
-        let u = getUsers().find(x => x.id === id);
-        if (!u) return;
+        if (!snap.exists()) return;
 
-        let online = Math.random() > 0.5;
+        let data = snap.val();
+        let friends = data.friends || [];
 
-        box.innerHTML += `
-            <div class="item">
-                <div>
-                    <b>${u.username}</b>
-                    <div class="${online ? 'online' : 'offline'}">
-                        ${online ? '🟢 Online' : '⚫ Offline'}
+        box.innerHTML = "";
+
+        if (friends.length === 0) {
+            box.innerHTML = "<p>No friends yet</p>";
+            return;
+        }
+
+        for (let u of friends) {
+
+            let fsnap = await get(ref(db, "users/" + u));
+            if (!fsnap.exists()) continue;
+
+            let f = fsnap.val();
+
+            box.innerHTML += `
+                <div class="item">
+                    <div>
+                        <b>${f.username}</b>
+                        <div class="${f.online ? "online" : "offline"}">
+                            ${f.online ? "🟢 Online" : "⚫ Offline"}
+                        </div>
                     </div>
-                </div>
 
-                <div>
-                    <button onclick="location.href='chat.html'">
-DM
-</button>
-                    <button class="danger" onclick="removeFriend('${u.id}')">Remove</button>
+                    <button class="danger" onclick="removeFriend('${f.username}')">
+                        Remove
+                    </button>
                 </div>
-            </div>
-        `;
+            `;
+        }
     });
 }
 
+// placeholder (không crash UI)
+window.removeFriend = async function (username) {
+    let refUser = ref(db, "users/" + currentUser.username);
+    let snap = await get(refUser);
+
+    if (!snap.exists()) return;
+
+    let data = snap.val();
+    let friends = data.friends || [];
+
+    friends = friends.filter(x => x !== username);
+
+    await update(refUser, { friends });
+};
+
 // =====================
-// INIT
-// =====================
-function init() {
-    loadRequests();
-    loadFriends();
-}
-
-init();
-
-setInterval(() => {
-
-    user = getUsers().find(u => u.id === getCurrentUserId());
-
-    loadRequests();
-    loadFriends();
-
-}, 2000);
+loadRequests();
+loadFriends();
 
 </script>
 
 </body>
-
 </html>
-

@@ -36,7 +36,7 @@
             
             <div class="user-text">
                 <div id="topUsername">Vic123</div>
-                <div class="coins">🪙 100 Coins</div>
+                <div class="coins" id="topCoins">🪙 0 Coins</div>
             </div>
         </div>
 
@@ -86,49 +86,18 @@
 </div>
 
 <!-- SCRIPT -->
-<script src="script.js"></script>
-<script>
-window.addEventListener("DOMContentLoaded", function () {
-    requireLogin();
+<script type="module" src="script.js"></script>
+
+<script type="module">
+window.addEventListener("DOMContentLoaded", async () => {
+
+    await requireLogin();
+
+    loadTopbar();
+
+    loadLikes();
+
 });
-</script>
-
-<script>
-let likes = JSON.parse(localStorage.getItem("game_likes")) || {};
-
-// Like system
-function likeGame(gameId) {
-    if (!likes[gameId]) likes[gameId] = 0;
-    likes[gameId]++;
-
-    localStorage.setItem("game_likes", JSON.stringify(likes));
-    updateLikesUI();
-}
-
-// Update UI
-function updateLikesUI() {
-    document.getElementById("like-cubeworld").innerText =
-        "⭐ " + (likes.cubeworld || 0) + " Likes";
-
-    document.getElementById("like-neonbattlegrounds").innerText =
-        "⭐ " + (likes.neonbattlegrounds || 0) + " Likes";
-
-    document.getElementById("like-elementalsphere").innerText =
-        "⭐ " + (likes.elementalsphere || 0) + " Likes";
-}
-
-updateLikesUI();
-
-// Search (basic)
-function searchGames() {
-    let input = document.getElementById("searchInput").value.toLowerCase();
-    let games = document.querySelectorAll(".game");
-
-    games.forEach(game => {
-        let name = game.querySelector("h3").innerText.toLowerCase();
-        game.style.display = name.includes(input) ? "block" : "none";
-    });
-}
 </script>
 
 </body>

@@ -23,65 +23,36 @@
 <!-- MAIN -->
 <div class="main">
 
-    <!-- TOPBAR -->
-    <div class="topbar">
-
-        <input type="text" placeholder="🔍 Search games..." id="searchInput" oninput="searchGames()">
-
-        <div class="userinfo">
-            <img id="topAvatar" class="top-avatar" src="https://placehold.co/40x40">
-
-            <div class="user-text">
-                <div id="topUsername">Vic123</div>
-                <div class="coins">🪙 100 Coins</div>
-            </div>
-        </div>
-
-    </div>
-
     <h1>⚙️ Settings</h1>
 
-    <!-- SETTINGS CARD -->
     <div class="game">
 
         <!-- USERNAME -->
         <h3>Username</h3>
-        <input
-            class="textbox"
-            id="usernameInput"
-            type="text"
-            placeholder="Enter username">
+        <input class="textbox" id="usernameInput" type="text" disabled>
 
         <br><br>
 
         <!-- LANGUAGE -->
         <h3>Language</h3>
-        <input
-            class="textbox"
-            id="languageInput"
-            type="text"
-            placeholder="English / Vietnamese">
+        <select class="textbox" id="languageInput">
+            <option value="en">English</option>
+            <option value="vi">Vietnamese</option>
+        </select>
 
         <br><br>
 
         <!-- AVATAR -->
         <h3>Avatar</h3>
 
-        <input
-            type="file"
-            id="avatarInput"
-            accept="image/*">
+        <input type="file" id="avatarInput" accept="image/*">
 
         <br><br>
 
-        <img
-            id="avatarPreview"
-            width="120"
-            src="https://placehold.co/120x120">
+        <img id="avatarPreview" width="120" src="https://placehold.co/120x120">
 
         <br><br>
 
-        <!-- SAVE -->
         <button class="play-button" onclick="saveSettings()">
             Save Changes
         </button>
@@ -90,7 +61,190 @@
 
 </div>
 
-<script src="script.js"></script>
+<script type="module">
+
+import { db } from "./firebase.js";
+
+import {
+    ref,
+    get,
+    update
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+let currentUser =
+    JSON.parse(
+        localStorage.getItem(
+            "currentUser"
+        )
+    );
+
+if (!currentUser) {
+
+    window.location.href =
+        "login.html";
+
+}
+
+
+// ======================
+// LOAD SETTINGS
+// ======================
+
+async function loadSettings() {
+
+    let snap =
+        await get(
+            ref(
+                db,
+                "users/" +
+                currentUser.username
+            )
+        );
+
+    if (!snap.exists())
+        return;
+
+    let data =
+        snap.val();
+
+    document.getElementById(
+        "usernameInput"
+    ).value =
+        data.username || "";
+
+    document.getElementById(
+        "languageInput"
+    ).value =
+        data.language || "en";
+
+    document.getElementById(
+        "avatarPreview"
+    ).src =
+        data.avatar ||
+        "https://placehold.co/120x120";
+
+}
+
+loadSettings();
+
+
+// ======================
+// AVATAR UPLOAD
+// ======================
+
+document.getElementById(
+    "avatarInput"
+).addEventListener(
+    "change",
+
+    function (e) {
+
+        let file =
+            e.target.files[0];
+
+        if (!file)
+            return;
+
+        let reader =
+            new FileReader();
+
+        reader.onload =
+            function (event) {
+
+                let base64 =
+                    event.target.result;
+
+                document.getElementById(
+                    "avatarPreview"
+                ).src =
+                    base64;
+
+                document.getElementById(
+                    "avatarInput"
+                ).dataset.base64 =
+                    base64;
+
+            };
+
+        reader.readAsDataURL(
+            file
+        );
+
+    }
+
+);
+
+
+// ======================
+// SAVE SETTINGS
+// ======================
+
+window.saveSettings =
+async function () {
+
+    let language =
+        document.getElementById(
+            "languageInput"
+        ).value;
+
+    let avatar =
+        document.getElementById(
+            "avatarInput"
+        ).dataset.base64 ||
+
+        document.getElementById(
+            "avatarPreview"
+        ).src;
+
+    await update(
+
+        ref(
+            db,
+            "users/" +
+            currentUser.username
+        ),
+
+        {
+
+            language:
+                language,
+
+            avatar:
+                avatar
+
+        }
+
+    );
+
+
+    // update session
+
+    localStorage.setItem(
+
+        "currentUser",
+
+        JSON.stringify({
+
+            username:
+                currentUser.username,
+
+            avatar:
+                avatar
+
+        })
+
+    );
+
+    alert(
+        "Settings saved!"
+    );
+
+};
+
+</script>
+
+<script type="module" src="script.js"></script>
 
 </body>
 </html>

@@ -10,11 +10,19 @@
 
     <h1>Create Account</h1>
 
-    <input id="regUsername" class="textbox" type="text" placeholder="Username">
+    <input
+        id="regUsername"
+        class="textbox"
+        type="text"
+        placeholder="Username">
 
     <br><br>
 
-    <input id="regPassword" class="textbox" type="password" placeholder="Password">
+    <input
+        id="regPassword"
+        class="textbox"
+        type="password"
+        placeholder="Password">
 
     <br><br>
 
@@ -27,53 +35,134 @@
         Back to Login
     </button>
 
+    <br><br>
+
+    <p
+        id="registerError"
+        style="
+            color:red;
+            font-weight:bold;
+        ">
+    </p>
+
 </div>
 
-<script src="script.js"></script>
+<script type="module">
 
-<script>
-function register() {
+import { db } from "./firebase.js";
 
-    let username = document.getElementById("regUsername").value;
-    let password = document.getElementById("regPassword").value;
+import {
+    ref,
+    get,
+    set
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+window.register = async function () {
+
+    let username =
+        document
+        .getElementById("regUsername")
+        .value
+        .trim();
+
+    let password =
+        document
+        .getElementById("regPassword")
+        .value;
+
+    let error =
+        document.getElementById(
+            "registerError"
+        );
+
+    error.innerText = "";
+
+    // CHECK EMPTY
     if (!username || !password) {
-        alert("Fill all fields");
+
+        error.innerText =
+            "Please fill all fields.";
+
+        alert("Please fill all fields.");
+
         return;
     }
 
-    let users = getUsers();
+    // CHECK USER EXISTS
+    let userRef =
+        ref(
+            db,
+            "users/" + username
+        );
 
-    // check duplicate
-    if (users.find(u => u.username === username)) {
-        alert("Username already exists");
+    let snap =
+        await get(userRef);
+
+    if (snap.exists()) {
+
+        error.innerText =
+            "Username already exists.";
+
+        alert("Username already exists.");
+
         return;
     }
 
-    let newUser = {
-        id: "u_" + Date.now(),
-        username,
-        password,
+    // CREATE ACCOUNT
+    await set(userRef, {
 
-        avatar: "https://placehold.co/40x40",
-        language: "en",
+        username: username,
+
+        password: password,
+
         coins: 100,
 
+        avatar:
+            "https://placehold.co/120x120",
+
+        language: "en",
+
+        createdAt: Date.now(),
+
         likes: {},
-        ratings: {},
-        gamesPlayed: {}
-    };
 
-    users.push(newUser);
-    saveUsers(users);
+        gamesPlayed: {},
 
-    // IMPORTANT: auto login after register
-    setCurrentUserId(newUser.id);
+        friends: [],
 
-    alert("Account created!");
+        requests: [],
 
-    window.location.href = "index.html";
-}
+        blocked: [],
+
+        online: false,
+
+        lastSeen: Date.now()
+
+    });
+
+    // LOGIN SESSION
+    localStorage.setItem(
+        "currentUser",
+
+        JSON.stringify({
+
+            username: username,
+
+            avatar:
+                "https://placehold.co/120x120"
+
+        })
+    );
+
+    alert("Account created successfully!");
+
+    // GO HOME
+    window.location.href =
+        "index.html";
+
+};
+
 </script>
 
 </body>

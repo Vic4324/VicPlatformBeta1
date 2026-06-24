@@ -118,46 +118,150 @@
 
 </div>
 
-<script src="script.js"></script>
+<script type="module">
 
-<script>
-window.addEventListener("DOMContentLoaded", function () {
+import { db } from "./firebase.js";
 
-    let user = getCurrentUser();
+import {
+    ref,
+    get
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    if (!user) {
-        window.location.href = "login.html";
-        return;
+
+window.addEventListener(
+    "DOMContentLoaded",
+
+    async function () {
+
+        let user =
+            JSON.parse(
+                localStorage.getItem(
+                    "currentUser"
+                )
+            );
+
+        if (!user) {
+
+            window.location.href =
+                "login.html";
+
+            return;
+        }
+
+        let username =
+            user.username;
+
+
+        let snap =
+            await get(
+                ref(
+                    db,
+                    "users/" + username
+                )
+            );
+
+
+        if (!snap.exists()) {
+
+            alert(
+                "User data not found"
+            );
+
+            return;
+        }
+
+
+        let data =
+            snap.val();
+
+
+        // avatar
+        document.getElementById(
+            "profileAvatar"
+        ).src =
+
+            data.avatar ||
+            "https://placehold.co/140x140";
+
+
+        // username
+        document.getElementById(
+            "profileName"
+        ).innerText =
+
+            data.username;
+
+
+        // coins
+        let coins =
+            data.coins || 0;
+
+        document.getElementById(
+            "profileCoins"
+        ).innerText =
+            coins;
+
+
+        // level
+        let level =
+            Math.floor(
+                coins / 100
+            ) + 1;
+
+        document.getElementById(
+            "profileLevel"
+        ).innerText =
+
+            "Level " + level;
+
+
+        // likes
+        let totalLikes = 0;
+
+        if (data.likes) {
+
+            for (let k in data.likes) {
+
+                totalLikes +=
+                    data.likes[k];
+
+            }
+
+        }
+
+        document.getElementById(
+            "profileLikes"
+        ).innerText =
+            totalLikes;
+
+
+        // games played
+        let totalGames = 0;
+
+        if (data.gamesPlayed) {
+
+            for (let k in data.gamesPlayed) {
+
+                totalGames +=
+                    data.gamesPlayed[k];
+
+            }
+
+        }
+
+        document.getElementById(
+            "profileGames"
+        ).innerText =
+            totalGames;
+
     }
 
-    document.getElementById("profileAvatar").src =
-        user.avatar || "https://placehold.co/140x140";
+);
 
-    document.getElementById("profileName").innerText =
-        user.username;
-
-    let coins = user.coins || 0;
-    document.getElementById("profileCoins").innerText = coins;
-
-    let level = Math.floor(coins / 100) + 1;
-    document.getElementById("profileLevel").innerText =
-        "Level " + level;
-
-    let totalLikes = 0;
-    for (let k in (user.likes || {})) {
-        totalLikes += user.likes[k];
-    }
-
-    document.getElementById("profileLikes").innerText = totalLikes;
-
-    let totalGames = 0;
-    for (let k in (user.gamesPlayed || {})) {
-        totalGames += user.gamesPlayed[k];
-    }
-
-    document.getElementById("profileGames").innerText = totalGames;
-});
 </script>
+
+<script type="module" src="script.js"></script>
 
 </body>
 </html>

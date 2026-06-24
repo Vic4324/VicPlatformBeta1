@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html>
 <head>
     <title>Login</title>
@@ -8,55 +9,180 @@
 
 <div class="main">
 
-    <h1>Login</h1>
+```
+<h1>Login</h1>
 
-    <input id="loginUsername" class="textbox" type="text" placeholder="Username">
+<input
+    id="loginUsername"
+    class="textbox"
+    type="text"
+    placeholder="Username">
 
-    <br><br>
+<br><br>
 
-    <input id="loginPassword" class="textbox" type="password" placeholder="Password">
+<input
+    id="loginPassword"
+    class="textbox"
+    type="password"
+    placeholder="Password">
 
-    <br><br>
+<br><br>
 
-    <button class="play-button" onclick="login()">
-        Login
-    </button>
+<button class="play-button" onclick="login()">
+    Login
+</button>
 
-    <button class="play-button"
-        onclick="location.href='register.html'">
-        Create Account
-    </button>
+<button class="play-button"
+    onclick="location.href='register.html'">
+    Create Account
+</button>
+
+<br><br>
+
+<p
+    id="loginError"
+    style="
+        color:red;
+        font-weight:bold;
+    ">
+</p>
+```
 
 </div>
 
-<script src="script.js"></script>
+<script type="module">
 
-<script>
-function login() {
+import { db } from "./firebase.js";
 
-    let username = document.getElementById("loginUsername").value;
-    let password = document.getElementById("loginPassword").value;
+import {
+    ref,
+    get,
+    update
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    let users = getUsers();
 
-    let user = users.find(u =>
-        u.username === username &&
-        u.password === password
-    );
+window.login = async function () {
 
-    if (!user) {
-        alert("Wrong username or password");
+    let username =
+        document
+        .getElementById(
+            "loginUsername"
+        )
+        .value
+        .trim();
+
+    let password =
+        document
+        .getElementById(
+            "loginPassword"
+        )
+        .value;
+
+    let error =
+        document.getElementById(
+            "loginError"
+        );
+
+    error.innerText = "";
+
+    // EMPTY
+    if (!username || !password) {
+
+        error.innerText =
+            "Please fill all fields.";
+
+        alert(
+            "Please fill all fields."
+        );
+
         return;
+
     }
 
-    // SET SESSION TRƯỚC
-    setCurrentUserId(user.id);
+    // USER
+    let userRef =
+        ref(
+            db,
+            "users/" + username
+        );
 
-    // REDIRECT
-    alert("Login success!");
+    let snap =
+        await get(userRef);
 
-    window.location.href = "index.html";
-}
+    // ACCOUNT NOT FOUND
+    if (!snap.exists()) {
+
+        error.innerText =
+            "Account does not exist.";
+
+        alert(
+            "Account does not exist."
+        );
+
+        return;
+
+    }
+
+    let data =
+        snap.val();
+
+    // WRONG PASSWORD
+    if (
+        data.password !== password
+    ) {
+
+        error.innerText =
+            "Wrong password.";
+
+        alert(
+            "Wrong password."
+        );
+
+        return;
+
+    }
+
+    // ONLINE
+    await update(
+        userRef,
+        {
+
+            online: true,
+
+            lastSeen:
+                Date.now()
+
+        }
+    );
+
+    // SESSION
+    localStorage.setItem(
+
+        "currentUser",
+
+        JSON.stringify({
+
+            username:
+                username,
+
+            avatar:
+                data.avatar
+
+        })
+
+    );
+
+    alert(
+        "Login successful!"
+    );
+
+    // GO HOME
+    window.location.href =
+        "index.html";
+
+};
+
 </script>
 
 </body>

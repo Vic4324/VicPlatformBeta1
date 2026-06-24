@@ -71,97 +71,332 @@
 
 </div>
 
-<script src="script.js"></script>
+<script type="module">
 
-<script>
+import { db } from "./firebase.js";
 
-let user = getCurrentUser();
+import {
+    ref,
+    get,
+    update
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-if(!user){
-    location.href = "login.html";
+
+let currentUser =
+    JSON.parse(
+        localStorage.getItem(
+            "currentUser"
+        )
+    );
+
+if (!currentUser) {
+
+    location.href =
+        "login.html";
+
 }
 
-function loadNotifications(){
 
-    user = getUsers().find(u=>u.id===getCurrentUserId());
 
-    let box = document.getElementById("notificationList");
+// ====================
+// LOAD NOTIFICATIONS
+// ====================
+
+async function loadNotifications() {
+
+    let box =
+        document.getElementById(
+            "notificationList"
+        );
 
     box.innerHTML = "";
 
-    // welcome
+
+    // welcome message
     box.innerHTML += `
-        <div class="notification">
-            <h3>🎉 Welcome to Vic Platform!</h3>
-            <div class="time">Enjoy your experience.</div>
+
+    <div class="notification">
+
+        <h3>
+            🎉 Welcome to Vic Platform!
+        </h3>
+
+        <div class="time">
+            Enjoy your experience.
         </div>
+
+    </div>
+
     `;
 
-    // friend requests
-    user.requests = user.requests || [];
 
-    user.requests.forEach(id=>{
+    let snap =
+        await get(
+            ref(
+                db,
+                "users/" +
+                currentUser.username
+            )
+        );
 
-        let sender = getUsers().find(x=>x.id===id);
+    if (!snap.exists())
+        return;
 
-        if(!sender) return;
 
-        box.innerHTML += `
-        <div class="notification">
+    let data =
+        snap.val();
 
-            <h3>👥 ${sender.username} sent you a friend request</h3>
+    let requests =
+        data.requests || [];
 
-            <div class="time">just now</div>
 
-            <br>
+    requests.forEach(
 
-            <button class="accept"
-            onclick="acceptAndRefresh('${sender.id}')">
+        username => {
 
-            Accept
+            box.innerHTML += `
 
-            </button>
+            <div class="notification">
 
-            <button class="reject"
-            onclick="rejectRequest('${sender.id}')">
+                <h3>
 
-            Reject
+                    👥 ${username}
+                    sent you a friend request
 
-            </button>
+                </h3>
 
-        </div>
-        `;
-    });
+                <div class="time">
+
+                    just now
+
+                </div>
+
+                <br>
+
+                <button
+                class="accept"
+
+                onclick="acceptAndRefresh('${username}')">
+
+                    Accept
+
+                </button>
+
+                <button
+                class="reject"
+
+                onclick="rejectRequest('${username}')">
+
+                    Reject
+
+                </button>
+
+            </div>
+
+            `;
+
+        }
+
+    );
 
 }
 
-function acceptAndRefresh(id){
 
-    acceptFriend(id);
+
+// ====================
+// ACCEPT
+// ====================
+
+window.acceptAndRefresh =
+async function (username) {
+
+    let mySnap =
+        await get(
+            ref(
+                db,
+                "users/" +
+                currentUser.username
+            )
+        );
+
+    let targetSnap =
+        await get(
+            ref(
+                db,
+                "users/" +
+                username
+            )
+        );
+
+    if (
+        !mySnap.exists() ||
+        !targetSnap.exists()
+    ) return;
+
+
+    let me =
+        mySnap.val();
+
+    let target =
+        targetSnap.val();
+
+
+    let myFriends =
+        me.friends || [];
+
+    let targetFriends =
+        target.friends || [];
+
+
+    if (
+        !myFriends.includes(
+            username
+        )
+    ) {
+
+        myFriends.push(
+            username
+        );
+
+    }
+
+
+    if (
+        !targetFriends.includes(
+            currentUser.username
+        )
+    ) {
+
+        targetFriends.push(
+            currentUser.username
+        );
+
+    }
+
+
+    let requests =
+        me.requests || [];
+
+    requests =
+        requests.filter(
+            x => x !== username
+        );
+
+
+    await update(
+
+        ref(
+            db,
+            "users/" +
+            currentUser.username
+        ),
+
+        {
+
+            friends:
+                myFriends,
+
+            requests:
+                requests
+
+        }
+
+    );
+
+
+    await update(
+
+        ref(
+            db,
+            "users/" +
+            username
+        ),
+
+        {
+
+            friends:
+                targetFriends
+
+        }
+
+    );
+
 
     loadNotifications();
 
-}
+};
 
-function rejectRequest(id){
 
-    updateCurrentUser(user=>{
 
-        user.requests=user.requests||[];
+// ====================
+// REJECT
+// ====================
 
-        user.requests=user.requests.filter(x=>x!==id);
+window.rejectRequest =
+async function (username) {
 
-    });
+    let snap =
+        await get(
+            ref(
+                db,
+                "users/" +
+                currentUser.username
+            )
+        );
+
+    if (!snap.exists())
+        return;
+
+
+    let data =
+        snap.val();
+
+    let requests =
+        data.requests || [];
+
+    requests =
+        requests.filter(
+            x => x !== username
+        );
+
+
+    await update(
+
+        ref(
+            db,
+            "users/" +
+            currentUser.username
+        ),
+
+        {
+
+            requests:
+                requests
+
+        }
+
+    );
+
 
     loadNotifications();
 
-}
+};
+
 
 loadNotifications();
 
-setInterval(loadNotifications,2000);
+setInterval(
+
+    loadNotifications,
+
+    3000
+
+);
 
 </script>
+
+<script type="module" src="script.js"></script>
 
 </body>
 </html>
